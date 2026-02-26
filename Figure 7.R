@@ -54,8 +54,8 @@ DefineSpatialNexus <- function(obj, axl_cutoff = 0.1, trem2_cutoff = 0.1, cxcl12
   obj$nexus_identity[obj$major_cell_type == "Tumor"] <- "AXL- Tumor"
   
   obj$nexus_identity[is_nexus_tumor] <- "AXL+ Tumor"
-  obj$nexus_identity[is_nexus_tam]   <- "TREM2+ TAMs"
-  obj$nexus_identity[is_nexus_caf]   <- "CXCL12+ CAFs"
+  obj$nexus_identity[is_nexus_tam]   <- "TREM2+ TAM"
+  obj$nexus_identity[is_nexus_caf]   <- "CXCL12+ CAF"
   
   return(obj)
 }
@@ -66,7 +66,7 @@ xenium.obj <- DefineSpatialNexus(xenium.obj)
 
 xenium.obj$nexus_identity <- factor(
   xenium.obj$nexus_identity, 
-  levels = c("AXL- Tumor", "AXL+ Tumor", "T cell", "Other", "TREM2+ TAMs", "CXCL12+ CAFs")
+  levels = c("AXL- Tumor", "AXL+ Tumor", "T cell", "Other", "TREM2+ TAM", "CXCL12+ CAF")
 )
 
 
@@ -75,8 +75,8 @@ nexus_colors_final <- c(
   "AXL+ Tumor"    = "#6fad6f",  
   "T cell"        = "#CCEA9E",  
   "Other"         = "#EFEFEF",  
-  "TREM2+ TAMs"   = "#FF00FF",  
-  "CXCL12+ CAFs"  = "#ff8000"   
+  "TREM2+ TAM"   = "#FF00FF",  
+  "CXCL12+ CAF"  = "#ff8000"   
 )
 
 
@@ -148,6 +148,7 @@ cn_palette <- c(
   "CN_6" = "#CCEA9E" 
 )
 
+
 p_cn <- ImageDimPlot(xenium.obj,
                      group.by = "CN_ID",
                      cols = cn_palette,
@@ -168,7 +169,7 @@ CalculateNicheResidence <- function(obj,
                                     markers = c("AXL", "TREM2", "CXCL12"), 
                                     count_layer = "counts") {
   
-  raw_counts <- FetchData(obj, vars = markers, slot = count_layer)
+  raw_counts <- FetchData(obj, vars = markers, layer = count_layer)
 
   obj$stat_identity <- "Other"
   
@@ -204,7 +205,7 @@ df_residence <- CalculateNicheResidence(xenium.obj, count_layer = "counts")
 p_residence <- ggplot(df_residence, aes(x = stat_identity, y = Freq, fill = CN_ID)) +
   geom_bar(stat = "identity", position = "fill", width = 0.75, color = "black", size = 0.2) +
   scale_y_continuous(labels = scales::percent, expand = c(0,0)) +
-  scale_fill_manual(values = my_cn_colors) +
+  scale_fill_manual(values = cn_palette) +
   theme_classic() +
   labs(y = "Fraction of Cells Residing in Niche", x = "") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12, face = "bold", color = "black"))
